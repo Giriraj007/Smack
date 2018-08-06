@@ -16,7 +16,23 @@ class SignupActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_signup)
+            signup_createuser.setOnClickListener(){
+
+                val email=signup_email.text.toString()
+                val password=signup_password.text.toString()
+                AuthService.registerUser(this,email,password){registerSuccess->
+                    if(registerSuccess)
+                    {
+                        //login
+                    }
+
+                }
+
+            }
     }
+
+
+
 
      fun changeImage(view: View)
      { val random=Random()
