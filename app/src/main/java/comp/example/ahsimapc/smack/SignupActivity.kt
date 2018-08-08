@@ -16,14 +16,29 @@ class SignupActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_signup)
+        spinner.visibility=View.INVISIBLE
             signup_createuser.setOnClickListener(){
-
+                 spinnerState(true)
                 val email=signup_email.text.toString()
                 val password=signup_password.text.toString()
+                val user_name=signupusername.text.toString()
                 AuthService.registerUser(this,email,password){registerSuccess->
                     if(registerSuccess)
                     {
-                        //login
+                        AuthService.loginUser(this,email,password){loginSuccess->
+                            if(loginSuccess)
+                            {
+                                AuthService.addUser(this,user_name,email,useravatar,avatarcolor){addUserSuccess->
+                                    if(addUserSuccess)
+                                    {  spinnerState(false)
+                                        finish()
+                                    }
+
+
+                                }
+                            }
+
+                        }
                     }
 
                 }
@@ -31,10 +46,7 @@ class SignupActivity : AppCompatActivity() {
             }
     }
 
-
-
-
-     fun changeImage(view: View)
+    fun changeImage(view: View)
      { val random=Random()
          val imageChoice=random.nextInt(2)
          val backgroundChoice=random.nextInt(28)
@@ -65,5 +77,20 @@ class SignupActivity : AppCompatActivity() {
         val savegreen=green.toDouble()/255
         val saveblue=blue.toDouble()/255
         avatarcolor="[$savered,$savegreen,$saveblue]"
+    }
+    fun spinnerState(enable:Boolean)
+     {if(enable)
+     {
+
+         spinner.visibility=View.VISIBLE
+
+     }else
+     {
+         spinner.visibility=View.INVISIBLE
+     }
+         signup_createuser.isEnabled=!enable
+         signup_userimage.isEnabled=!enable
+         signup_generate_button.isEnabled=!enable
+
     }
 }
