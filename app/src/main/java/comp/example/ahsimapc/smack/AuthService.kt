@@ -116,6 +116,7 @@ object AuthService {
             UserDataService.user_email=response.getString("email")
             UserDataService.user_id=response.getString("_id")
             UserDataService.user_name=response.getString("name")
+            UserDataService.avatarName=response.getString("avatarName")
             println(response)
             complete(true)
 
