@@ -1,9 +1,6 @@
 package comp.example.ahsimapc.smack
 
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.content.*
 import android.content.res.Resources
 import android.graphics.Color
 import android.os.Bundle
@@ -12,6 +9,7 @@ import android.support.design.widget.NavigationView
 import android.support.v4.content.LocalBroadcastManager
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
+import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
@@ -36,7 +34,11 @@ class MainActivity : AppCompatActivity(){
         LocalBroadcastManager.getInstance(this).registerReceiver(receiver, IntentFilter(BROADCAST_USER))
 
 
+
+
     }
+
+
 
 
     val receiver =object:BroadcastReceiver()
@@ -86,6 +88,19 @@ class MainActivity : AppCompatActivity(){
 
     fun addChannelClick(view: View)
     {
+        if(AuthService.isloggedin)
+        {
+            val builder=AlertDialog.Builder(this)
+            val view=layoutInflater.inflate(R.layout.channel_layoutt,null)
+            builder.setView(view)
+            builder.setPositiveButton("Add"){dialog: DialogInterface?, which: Int ->
+
+                //
+            }
+            builder.setNegativeButton("Cancel"){dialog: DialogInterface?, which: Int ->
+            }
+            builder.show()
+        }
 
     }
 
@@ -93,6 +108,8 @@ class MainActivity : AppCompatActivity(){
         super.onDestroy()
         LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver)
     }
+
+
 
 
 
