@@ -14,17 +14,22 @@ import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.EditText
 import comp.example.ahsimapc.smack.utilities.BROADCAST_USER
+import comp.example.ahsimapc.smack.utilities.SOCKEt_URL
+import io.socket.client.IO
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.nav_header_main.*
 
 class MainActivity : AppCompatActivity(){
+    val socket= IO.socket(SOCKEt_URL)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
+
 
         val toggle = ActionBarDrawerToggle(
                 this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
@@ -37,6 +42,8 @@ class MainActivity : AppCompatActivity(){
 
 
     }
+
+
 
 
 
@@ -86,6 +93,13 @@ class MainActivity : AppCompatActivity(){
 
     }
 
+    override fun onResume() {
+        super.onResume()
+        LocalBroadcastManager.getInstance(this).registerReceiver(receiver, IntentFilter(BROADCAST_USER))
+        socket.connect()
+
+    }
+
     fun addChannelClick(view: View)
     {
         if(AuthService.isloggedin)
@@ -94,8 +108,11 @@ class MainActivity : AppCompatActivity(){
             val view=layoutInflater.inflate(R.layout.channel_layoutt,null)
             builder.setView(view)
             builder.setPositiveButton("Add"){dialog: DialogInterface?, which: Int ->
+                val channel_name=view.findViewById<EditText>(R.id.dialogue_channelname)
+                val channel_description=view.findViewById<EditText>(R.id.dialog_channeldescription)
+                socket.emit("newChannel",channel_name.text,channel_description.text)
 
-                //
+
             }
             builder.setNegativeButton("Cancel"){dialog: DialogInterface?, which: Int ->
             }
@@ -107,6 +124,7 @@ class MainActivity : AppCompatActivity(){
     override fun onDestroy() {
         super.onDestroy()
         LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver)
+        socket.disconnect()
     }
 
 

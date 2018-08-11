@@ -17,7 +17,7 @@
         android:textSize="14sp" />
 
     <EditText
-        android:id="@+id/editText"
+        android:id="@+id/dialogue_channelname"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="18dp"
@@ -27,12 +27,12 @@
         android:inputType="textPersonName" />
 
     <EditText
-        android:id="@+id/editText2"
+        android:id="@+id/dialog_channeldescription"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="textPersonName"
+        android:layout_marginBottom="12dp"
         android:layout_marginLeft="18dp"
         android:layout_marginRight="18dp"
-        android:layout_marginBottom="12dp"
-        android:hint="channel description" />
+        android:hint="channel description"
+        android:inputType="textPersonName" />
 </LinearLayout>
