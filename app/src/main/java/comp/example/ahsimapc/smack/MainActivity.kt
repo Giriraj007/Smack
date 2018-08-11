@@ -18,6 +18,7 @@ import android.widget.EditText
 import comp.example.ahsimapc.smack.utilities.BROADCAST_USER
 import comp.example.ahsimapc.smack.utilities.SOCKEt_URL
 import io.socket.client.IO
+import io.socket.emitter.Emitter
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.nav_header_main.*
@@ -35,12 +36,27 @@ class MainActivity : AppCompatActivity(){
                 this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
+        socket.connect()
+        socket.on("channelCreated",emmiter)
 
         LocalBroadcastManager.getInstance(this).registerReceiver(receiver, IntentFilter(BROADCAST_USER))
 
 
 
 
+    }
+    val  emmiter=Emitter.Listener { arg->
+
+        runOnUiThread {
+            val channel_name=arg[0] as String
+            val channel_description=arg[1] as String
+            val channel_id=arg[2] as String
+            val channel =Channel(channel_name,channel_description,channel_id)
+            MessageService.array.add(channel)
+            println(channel.name)
+            println(channel.description)
+            println(channel_id)
+        }
     }
 
 
@@ -96,7 +112,7 @@ class MainActivity : AppCompatActivity(){
     override fun onResume() {
         super.onResume()
         LocalBroadcastManager.getInstance(this).registerReceiver(receiver, IntentFilter(BROADCAST_USER))
-        socket.connect()
+
 
     }
 
