@@ -22,9 +22,11 @@ import io.socket.client.IO
 import io.socket.emitter.Emitter
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
+import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.android.synthetic.main.nav_header_main.*
 
 class MainActivity : AppCompatActivity(){
+    var selectedchannel:Channel?=null
     val socket= IO.socket(SOCKEt_URL)
     lateinit var channel_Adapter:ArrayAdapter<Channel>
 
@@ -40,10 +42,20 @@ class MainActivity : AppCompatActivity(){
         toggle.syncState()
         socket.connect()
         socket.on("channelCreated",emmiter)
+        channel_list.setOnItemClickListener { parent, view, position, id ->
+
+            selectedchannel=MessageService.array[position]
+            drawer_layout.closeDrawer(GravityCompat.START)
+            updateWithChannel()
+        }
 
 
         LocalBroadcastManager.getInstance(this).registerReceiver(receiver, IntentFilter(BROADCAST_USER))
         setAdapter()
+        if(App.prefs.isloggedin)
+        {
+            AuthService.findUserByEmail(this){}
+        }
 
 
 
@@ -77,7 +89,7 @@ class MainActivity : AppCompatActivity(){
     val receiver =object:BroadcastReceiver()
     {
         override fun onReceive(context: Context, intent: Intent?) {
-            if(AuthService.isloggedin) {
+            if(App.prefs.isloggedin) {
                 username_nav_header.text = UserDataService.user_name
                 email_nav_header.text = UserDataService.user_email
                 val imageiD = resources.getIdentifier(UserDataService.avatarName, "drawable", packageName)
@@ -86,15 +98,27 @@ class MainActivity : AppCompatActivity(){
                 login_button_nav_screen.text = "Logout"
                 MessageService.findChannel(context){complete->
                     if(complete)
-                    { channel_Adapter.notifyDataSetChanged()
+                    { if(MessageService.array.count()>0)
+                    {  selectedchannel=MessageService.array[0]
+
+                        channel_Adapter.notifyDataSetChanged()
+                        updateWithChannel()
+                    }
+
 
                     }
+
 
                 }
 
 
             }
         }
+    }
+
+    fun updateWithChannel()
+    {
+        channel_name.text=selectedchannel?.name
     }
 
     override fun onBackPressed() {
@@ -113,7 +137,7 @@ class MainActivity : AppCompatActivity(){
 
 
     fun loginUserClick(view:View)
-    {  if(AuthService.isloggedin)
+    {  if(App.prefs.isloggedin)
     {  UserDataService.loggedOut()
         email_nav_header.text=""
         username_nav_header.text=""
@@ -138,7 +162,7 @@ class MainActivity : AppCompatActivity(){
 
     fun addChannelClick(view: View)
     {
-        if(AuthService.isloggedin)
+        if(App.prefs.isloggedin)
         {
             val builder=AlertDialog.Builder(this)
             val view=layoutInflater.inflate(R.layout.channel_layoutt,null)

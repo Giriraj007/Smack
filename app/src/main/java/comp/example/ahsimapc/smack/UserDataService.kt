@@ -19,10 +19,10 @@ object UserDataService {
          user_name=""
          user_id=""
          avatarName=""
-        AuthService.Auth_email=""
-        AuthService.Auth_password=""
-        AuthService.Auth_token=""
-        AuthService.isloggedin=false
+        App.prefs.Auth_email=""
+        //AuthService.Auth_password=""
+        App.prefs.Auth_token=""
+        App.prefs.isloggedin=false
         MessageService.array.clear()
 
 

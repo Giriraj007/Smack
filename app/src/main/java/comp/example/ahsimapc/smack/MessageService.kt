@@ -44,7 +44,7 @@ object MessageService {
             override fun getHeaders(): MutableMap<String, String> {
 
                 val map = HashMap<String, String>()
-                map.put("Authorization", "Bearer ${AuthService.Auth_token}")
+                map.put("Authorization", "Bearer ${App.prefs.Auth_token}")
                 return map
             }
 

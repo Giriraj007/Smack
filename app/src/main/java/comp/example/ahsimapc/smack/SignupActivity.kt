@@ -27,11 +27,11 @@ class SignupActivity : AppCompatActivity() {
                 val password = signup_password.text.toString()
                 val user_name = signupusername.text.toString()
                 if (email.isNotEmpty() && password.isNotEmpty() && user_name.isNotEmpty()) {
-                    AuthService.registerUser(this, email, password) { registerSuccess ->
+                    AuthService.registerUser( email, password) { registerSuccess ->
                         if (registerSuccess) {
-                            AuthService.loginUser(this, email, password) { loginSuccess ->
+                            AuthService.loginUser( email, password) { loginSuccess ->
                                 if (loginSuccess) {
-                                    AuthService.addUser(this, user_name, email, useravatar, avatarcolor) { addUserSuccess ->
+                                    AuthService.addUser( user_name, email, useravatar, avatarcolor) { addUserSuccess ->
                                         if (addUserSuccess) {
                                             spinnerState(false)
                                             val intentt = Intent(BROADCAST_USER)
