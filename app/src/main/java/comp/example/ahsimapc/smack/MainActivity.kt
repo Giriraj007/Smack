@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.EditText
 import comp.example.ahsimapc.smack.utilities.BROADCAST_USER
@@ -42,12 +43,27 @@ class MainActivity : AppCompatActivity(){
         toggle.syncState()
         socket.connect()
         socket.on("channelCreated",emmiter)
+        socket.on("messageCreated",mesaageEmitter)
         channel_list.setOnItemClickListener { parent, view, position, id ->
 
             selectedchannel=MessageService.array[position]
             drawer_layout.closeDrawer(GravityCompat.START)
             updateWithChannel()
+
+            send_button.setOnClickListener {
+                if(App.prefs.isloggedin &&message_textview.text.isNotEmpty() && selectedchannel!=null)
+                {
+
+                    val channelid=selectedchannel!!.id
+                    val userid=UserDataService.user_id
+                    socket.emit("newMessage",message_textview.text.toString(),userid,channelid,UserDataService.user_name,
+                            UserDataService.avatarName,UserDataService.avatarColor)
+                    hideKeyboard()
+
+                }
+            }
         }
+
 
 
         LocalBroadcastManager.getInstance(this).registerReceiver(receiver, IntentFilter(BROADCAST_USER))
@@ -80,6 +96,23 @@ class MainActivity : AppCompatActivity(){
            channel_Adapter.notifyDataSetChanged()
         }
     }
+    val mesaageEmitter=Emitter.Listener { args ->
+        runOnUiThread {
+            val messageBody = args[0] as String
+            val channelId = args[2] as String
+            val username = args[3] as String
+            val avatarName = args[4] as String
+            val avatarColor = args[5] as String
+            val id=args[6] as String
+            val timeSpan = args[7] as String
+            val message=Message(messageBody,username,channelId,avatarName,avatarColor,id,timeSpan)
+            MessageService.MessageArray.add(message)
+            println(messageBody+" "+MessageService.MessageArray.size)
+
+        }
+    }
+
+
 
 
 
@@ -136,6 +169,7 @@ class MainActivity : AppCompatActivity(){
 
 
 
+
     fun loginUserClick(view:View)
     {  if(App.prefs.isloggedin)
     {  UserDataService.loggedOut()
@@ -187,9 +221,19 @@ class MainActivity : AppCompatActivity(){
         LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver)
         socket.disconnect()
     }
+    fun hideKeyboard()
+    {
 
+        val inputManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        if(inputManager.isAcceptingText){
+            inputManager.hideSoftInputFromWindow(currentFocus.windowToken, 0)
 
-
-
-
+        }
+    }
 }
+
+
+
+
+
+

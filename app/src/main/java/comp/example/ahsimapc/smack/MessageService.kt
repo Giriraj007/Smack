@@ -15,6 +15,7 @@ import org.json.JSONObject
 object MessageService {
 
     val array = ArrayList<Channel>()
+    val MessageArray=ArrayList<Message>()
 
 
     fun findChannel(context: Context, complete: (Boolean) -> Unit) {
