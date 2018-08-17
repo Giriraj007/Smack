@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.ArrayAdapter
 import android.widget.EditText
 import comp.example.ahsimapc.smack.utilities.BROADCAST_USER
 import comp.example.ahsimapc.smack.utilities.SOCKEt_URL
@@ -25,6 +26,7 @@ import kotlinx.android.synthetic.main.nav_header_main.*
 
 class MainActivity : AppCompatActivity(){
     val socket= IO.socket(SOCKEt_URL)
+    lateinit var channel_Adapter:ArrayAdapter<Channel>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,11 +41,21 @@ class MainActivity : AppCompatActivity(){
         socket.connect()
         socket.on("channelCreated",emmiter)
 
+
         LocalBroadcastManager.getInstance(this).registerReceiver(receiver, IntentFilter(BROADCAST_USER))
+        setAdapter()
 
 
 
 
+
+
+
+    }
+    fun setAdapter()
+    {
+        channel_Adapter=ArrayAdapter(this,android.R.layout.simple_list_item_1,MessageService.array)
+        channel_list.adapter=channel_Adapter
     }
     val  emmiter=Emitter.Listener { arg->
 
@@ -53,9 +65,7 @@ class MainActivity : AppCompatActivity(){
             val channel_id=arg[2] as String
             val channel =Channel(channel_name,channel_description,channel_id)
             MessageService.array.add(channel)
-            println(channel.name)
-            println(channel.description)
-            println(channel_id)
+           channel_Adapter.notifyDataSetChanged()
         }
     }
 
@@ -66,7 +76,7 @@ class MainActivity : AppCompatActivity(){
 
     val receiver =object:BroadcastReceiver()
     {
-        override fun onReceive(context: Context?, intent: Intent?) {
+        override fun onReceive(context: Context, intent: Intent?) {
             if(AuthService.isloggedin) {
                 username_nav_header.text = UserDataService.user_name
                 email_nav_header.text = UserDataService.user_email
@@ -74,6 +84,15 @@ class MainActivity : AppCompatActivity(){
                 profilepic_nav_header.setImageResource(imageiD)
                 profilepic_nav_header.setBackgroundColor(UserDataService.getAvatarColor(UserDataService.avatarColor))
                 login_button_nav_screen.text = "Logout"
+                MessageService.findChannel(context){complete->
+                    if(complete)
+                    { channel_Adapter.notifyDataSetChanged()
+
+                    }
+
+                }
+
+
             }
         }
     }
@@ -101,6 +120,7 @@ class MainActivity : AppCompatActivity(){
         profilepic_nav_header.setImageResource(R.drawable.profiledefault)
         profilepic_nav_header.setBackgroundColor(Color.TRANSPARENT)
         login_button_nav_screen.text="Login"
+        channel_Adapter.notifyDataSetChanged()
 
     }else {
         val intent = Intent(this, LoginActivity::class.java)
@@ -111,7 +131,7 @@ class MainActivity : AppCompatActivity(){
 
     override fun onResume() {
         super.onResume()
-        LocalBroadcastManager.getInstance(this).registerReceiver(receiver, IntentFilter(BROADCAST_USER))
+       // LocalBroadcastManager.getInstance(this).registerReceiver(receiver, IntentFilter(BROADCAST_USER))
 
 
     }
@@ -133,6 +153,7 @@ class MainActivity : AppCompatActivity(){
             builder.setNegativeButton("Cancel"){dialog: DialogInterface?, which: Int ->
             }
             builder.show()
+
         }
 
     }

@@ -23,6 +23,8 @@ object UserDataService {
         AuthService.Auth_password=""
         AuthService.Auth_token=""
         AuthService.isloggedin=false
+        MessageService.array.clear()
+
 
     }
 
