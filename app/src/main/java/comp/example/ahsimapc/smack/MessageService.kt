@@ -7,7 +7,9 @@ import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import comp.example.ahsimapc.smack.MessageService.array
+import comp.example.ahsimapc.smack.utilities.BASE_URL
 import comp.example.ahsimapc.smack.utilities.FIND_CHANNEL
+import comp.example.ahsimapc.smack.utilities.FIND_MESSAGE
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -54,6 +56,71 @@ object MessageService {
             }
         }
 
-  Volley.newRequestQueue(context).add(findchannelRequest)
+  App.prefs.requestqueue.add(findchannelRequest)
+    }
+
+
+
+    fun findMessageForChannel(id:String,complete:(Boolean)->Unit) {
+        clearMessages()
+        val url = "$FIND_MESSAGE$id"
+
+        val findMesaageRequest = object : JsonArrayRequest(Method.GET, url, null, Response.Listener {response->
+            try {
+                for(x in 0 until response.length())
+                {  val message=response.getJSONObject(x)
+                    val id=message.getString("_id")
+                    val messagebody=message.getString("messageBody")
+                    val channelId=message.getString("channelId")
+                    val username=message.getString("userName")
+                    val useravatar=message.getString("userAvatar")
+                    val userColor=message.getString("userAvatar")
+                    val timestamp=message.getString("timeStamp")
+                    val msg=Message(messagebody,username,channelId,useravatar,userColor,id,timestamp)
+                   this.MessageArray.add(msg)
+                    complete(true)
+
+                }
+
+
+            } catch (e: JSONException) {
+                println("Error in find Message" + e.localizedMessage)
+                complete(false)
+            }
+        },
+
+                Response.ErrorListener { error ->
+                    println(error.toString())
+                    complete(false)
+                }){
+
+            override fun getBodyContentType(): String {
+                return "application/json; charset=utf-8"
+            }
+            override fun getHeaders(): MutableMap<String, String> {
+
+                val map = HashMap<String, String>()
+                map.put("Authorization", "Bearer ${App.prefs.Auth_token}")
+                return map
+            }
+
+
+
+        }
+        App.prefs.requestqueue.add(findMesaageRequest)
+
+    }
+
+
+    fun clearChannel()
+    {
+        array.clear()
+    }
+
+
+    fun clearMessages()
+    {
+
+        MessageArray.clear()
     }
 }

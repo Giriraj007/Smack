@@ -23,7 +23,8 @@ object UserDataService {
         //AuthService.Auth_password=""
         App.prefs.Auth_token=""
         App.prefs.isloggedin=false
-        MessageService.array.clear()
+        MessageService.clearMessages()
+        MessageService.clearChannel()
 
 
     }

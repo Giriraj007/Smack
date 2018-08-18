@@ -46,10 +46,10 @@ class MainActivity : AppCompatActivity(){
         socket.on("messageCreated",mesaageEmitter)
         channel_list.setOnItemClickListener { parent, view, position, id ->
 
-            selectedchannel=MessageService.array[position]
+            selectedchannel = MessageService.array[position]
             drawer_layout.closeDrawer(GravityCompat.START)
             updateWithChannel()
-
+        }
             send_button.setOnClickListener {
                 if(App.prefs.isloggedin &&message_textview.text.isNotEmpty() && selectedchannel!=null)
                 {
@@ -59,10 +59,11 @@ class MainActivity : AppCompatActivity(){
                     socket.emit("newMessage",message_textview.text.toString(),userid,channelid,UserDataService.user_name,
                             UserDataService.avatarName,UserDataService.avatarColor)
                     hideKeyboard()
+                    message_textview.text.clear()
 
                 }
             }
-        }
+
 
 
 
@@ -86,29 +87,34 @@ class MainActivity : AppCompatActivity(){
         channel_list.adapter=channel_Adapter
     }
     val  emmiter=Emitter.Listener { arg->
-
-        runOnUiThread {
-            val channel_name=arg[0] as String
-            val channel_description=arg[1] as String
-            val channel_id=arg[2] as String
-            val channel =Channel(channel_name,channel_description,channel_id)
-            MessageService.array.add(channel)
-           channel_Adapter.notifyDataSetChanged()
-        }
+     if(App.prefs.isloggedin) {
+         runOnUiThread {
+             val channel_name = arg[0] as String
+             val channel_description = arg[1] as String
+             val channel_id = arg[2] as String
+             val channel = Channel(channel_name, channel_description, channel_id)
+             MessageService.array.add(channel)
+             channel_Adapter.notifyDataSetChanged()
+         }
+     }
     }
     val mesaageEmitter=Emitter.Listener { args ->
-        runOnUiThread {
-            val messageBody = args[0] as String
-            val channelId = args[2] as String
-            val username = args[3] as String
-            val avatarName = args[4] as String
-            val avatarColor = args[5] as String
-            val id=args[6] as String
-            val timeSpan = args[7] as String
-            val message=Message(messageBody,username,channelId,avatarName,avatarColor,id,timeSpan)
-            MessageService.MessageArray.add(message)
-            println(messageBody+" "+MessageService.MessageArray.size)
+        if(App.prefs.isloggedin) {
+            runOnUiThread {
+                val channelId = args[2] as String
+                if(channelId==selectedchannel!!.id) {
+                    val messageBody = args[0] as String
+                    val username = args[3] as String
+                    val avatarName = args[4] as String
+                    val avatarColor = args[5] as String
+                    val id = args[6] as String
+                    val timeSpan = args[7] as String
+                    val message = Message(messageBody, username, channelId, avatarName, avatarColor, id, timeSpan)
+                    MessageService.MessageArray.add(message)
+                }
 
+
+            }
         }
     }
 
@@ -152,6 +158,19 @@ class MainActivity : AppCompatActivity(){
     fun updateWithChannel()
     {
         channel_name.text=selectedchannel?.name
+        if(selectedchannel!=null)
+        {
+        MessageService.findMessageForChannel(selectedchannel!!.id) { complete ->
+            if (complete) {
+                for (message in MessageService.MessageArray) {
+                    println(message.message)
+
+                }
+            }
+        }
+
+
+        }
     }
 
     override fun onBackPressed() {
